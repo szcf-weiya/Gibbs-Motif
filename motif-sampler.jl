@@ -1,5 +1,6 @@
 using StatsBase
 using Distributions
+using SpecialFunctions
 # read file into string
 s = open("hw2_part2_data.txt") do file
     read(file, String)
@@ -117,15 +118,13 @@ function compare_site(site1, site2; delta = 1)
     else
         freq1 = countAGCT(pos1[(0:(N-1))*W .+ W])
         freq2 = countAGCT(pos2[(0:(N-1))*W .+ 1])
-    end
-#    p = prod(factorial.(freq2)) / prod(factorial.(freq1))
-    p = 1
-    for i = 1:4
-        if freq2[i] > freq1[i]
-            p *= prod(freq1[i]+1:freq2[i])
-        elseif freq2[i] < freq1[i]
-            p /= prod(freq2[i]+1:freq1[i])
-        end
+    end                
+    lg2 = sum(loggamma.(filter(!iszero, freq2)))
+    lg1 = sum(loggamma.(filter(!iszero, freq1)))
+    if lg2 > lg1
+        p = 1
+    else
+        p = exp(lg2 - lg1)
     end
     return p
 end
